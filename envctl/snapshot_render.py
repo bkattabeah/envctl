@@ -14,6 +14,17 @@ _COL_DATE = 27
 _COL_KEYS = 6
 
 
+def _format_snapshot_row(entry: dict) -> str:
+    """Format a single snapshot entry as a fixed-width table row."""
+    label = entry.get("label") or ""
+    return (
+        f"{entry['snapshot_id']:<{_COL_ID}}  "
+        f"{label:<{_COL_LABEL}}  "
+        f"{entry['created_at']:<{_COL_DATE}}  "
+        f"{entry['keys']:>{_COL_KEYS}}"
+    )
+
+
 def render_snapshot_list(target: str, entries: List[dict], *, color: bool = True) -> str:
     """Return a formatted table of snapshots for *target*."""
     if not entries:
@@ -35,14 +46,7 @@ def render_snapshot_list(target: str, entries: List[dict], *, color: bool = True
     lines.append(sep)
 
     for entry in entries:
-        label = entry.get("label") or ""
-        row = (
-            f"{entry['snapshot_id']:<{_COL_ID}}  "
-            f"{label:<{_COL_LABEL}}  "
-            f"{entry['created_at']:<{_COL_DATE}}  "
-            f"{entry['keys']:>{_COL_KEYS}}"
-        )
-        lines.append(row)
+        lines.append(_format_snapshot_row(entry))
 
     return "\n".join(lines)
 
