@@ -25,19 +25,24 @@ def _format_snapshot_row(entry: dict) -> str:
     )
 
 
-def render_snapshot_list(target: str, entries: List[dict], *, color: bool = True) -> str:
-    """Return a formatted table of snapshots for *target*."""
-    if not entries:
-        msg = f"No snapshots found for target '{target}'."
-        return colorize(msg, "yellow") if color else msg
-
+def _build_header() -> tuple[str, str]:
+    """Return the column header line and a separator of equal length."""
     header = (
         f"{'SNAPSHOT ID':<{_COL_ID}}  "
         f"{'LABEL':<{_COL_LABEL}}  "
         f"{'CREATED AT':<{_COL_DATE}}  "
         f"{'KEYS':>{_COL_KEYS}}"
     )
-    sep = "-" * len(header)
+    return header, "-" * len(header)
+
+
+def render_snapshot_list(target: str, entries: List[dict], *, color: bool = True) -> str:
+    """Return a formatted table of snapshots for *target*."""
+    if not entries:
+        msg = f"No snapshots found for target '{target}'."
+        return colorize(msg, "yellow") if color else msg
+
+    header, sep = _build_header()
     lines = []
     if color:
         lines.append(colorize(header, bold=True))
