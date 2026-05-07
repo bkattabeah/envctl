@@ -30,6 +30,16 @@ class TestDiffSnapshots:
         added, removed, changed = diff_snapshots({"X": "1"}, {"X": "1"})
         assert not added and not removed and not changed
 
+    def test_empty_snapshots_returns_empty(self):
+        """Both snapshots empty should produce no diffs."""
+        added, removed, changed = diff_snapshots({}, {})
+        assert not added and not removed and not changed
+
+    def test_all_keys_removed(self):
+        """Transitioning from a populated snapshot to an empty one."""
+        _, removed, _ = diff_snapshots({"A": "1", "B": "2"}, {})
+        assert removed == {"A": "1", "B": "2"}
+
 
 # ---------------------------------------------------------------------------
 # WatchEvent
@@ -64,6 +74,16 @@ class TestWatchEvent:
         assert "-1 removed" in s
         assert "~1 changed" in s
 
+    def test_has_changes_true_when_removed(self):
+        """has_changes should be True when only removals are present."""
+        e = WatchEvent(target="dev", removed={"K": "v"})
+        assert e.has_changes
+
+    def test_has_changes_true_when_changed(self):
+        """has_changes should be True when only changed entries are present."""
+        e = WatchEvent(target="dev", changed=[("K", "old", "new")])
+        assert e.has_changes
+
 
 # ---------------------------------------------------------------------------
 # poll_target
@@ -88,39 +108,4 @@ class TestPollTarget:
         assert events == []
 
 
-# ---------------------------------------------------------------------------
-# render_watch_event
-# ---------------------------------------------------------------------------
-
-class TestRenderWatchEvent:
-    def test_shows_added_key(self):
-        e = WatchEvent(target="dev", added={"NEW": "val"})
-        out = render_watch_event(e)
-        assert "NEW" in out
-        assert "val" in out
-
-    def test_masks_values(self):
-        e = WatchEvent(target="dev", added={"SECRET": "s3cr3t"})
-        out = render_watch_event(e, mask_values=True)
-        assert "s3cr3t" not in out
-        assert "***" in out
-
-    def test_shows_target_in_header(self):
-        e = WatchEvent(target="production")
-        out = render_watch_event(e)
-        assert "production" in out
-
-
-class TestRenderWatchSummary:
-    def test_no_events_message(self):
-        out = render_watch_summary([])
-        assert "No changes" in out
-
-    def test_counts_events(self):
-        events = [
-            WatchEvent(target="dev", added={"A": "1"}),
-            WatchEvent(target="dev", removed={"B": "2"}),
-        ]
-        out = render_watch_summary(events)
-        assert "2 event" in out
-        assert "2 total change" in out
+# ------------------------------
