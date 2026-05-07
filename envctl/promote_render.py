@@ -4,11 +4,35 @@ from envctl.promote import PromoteResult
 from envctl.render import colorize
 
 
+def _render_key_section(
+    keys: set,
+    label_plain: str,
+    label_color: str,
+    color: bool,
+    lines: list,
+) -> None:
+    """Append a labeled section of keys to lines, if any keys exist."""
+    if not keys:
+        return
+    label = colorize(label_color, label_color.split()[1]) if color else label_plain
+    label = colorize(label_plain, label_color) if color else label_plain
+    for key in sorted(keys):
+        lines.append(f"{label}: {key}")
+
+
 def render_promote_result(result: PromoteResult, *, color: bool = True) -> str:
-    """Render a PromoteResult as a human-readable string."""
+    """Render a PromoteResult as a human-readable string.
+
+    Args:
+        result: The PromoteResult to render.
+        color: Whether to include ANSI color codes in the output.
+
+    Returns:
+        A formatted, human-readable string summarising the promote operation.
+    """
     lines = []
 
-    header = f"Promote: {result.source!r} → {result.destination!r}"
+    header = f"Promote: {result.source!r} \u2192 {result.destination!r}"
     lines.append(colorize(header, "bold") if color else header)
     lines.append("")
 
