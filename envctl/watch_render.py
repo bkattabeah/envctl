@@ -19,7 +19,15 @@ def _fmt_time(ts: float) -> str:
 
 
 def render_watch_event(event: WatchEvent, mask_values: bool = False) -> str:
-    """Render a single WatchEvent to a human-readable string."""
+    """Render a single WatchEvent to a human-readable string.
+
+    Args:
+        event: The WatchEvent to render.
+        mask_values: If True, replace variable values with '***'.
+
+    Returns:
+        A formatted, colorized string representation of the event.
+    """
     lines: List[str] = []
     header = colorize(
         f"[{_fmt_time(event.timestamp)}] {event.target}: {event.summary()}",
@@ -46,7 +54,14 @@ def render_watch_event(event: WatchEvent, mask_values: bool = False) -> str:
 
 
 def render_watch_summary(events: List[WatchEvent]) -> str:
-    """Render a summary line after a watch session ends."""
+    """Render a summary line after a watch session ends.
+
+    Args:
+        events: All WatchEvents collected during the session.
+
+    Returns:
+        A colorized summary string indicating the number of events and changes.
+    """
     if not events:
         return colorize("Watch complete. No changes detected.", color=_CYAN)
     total_changes = sum(
