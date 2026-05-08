@@ -10,8 +10,23 @@ _COL_VAL = 40
 _COL_SRC = 20
 
 
+def _truncate(value: str, max_len: int) -> str:
+    """Truncate a string to max_len, appending '...' if truncated."""
+    if len(value) > max_len:
+        return value[: max_len - 3] + "..."
+    return value
+
+
 def render_merge_result(result: MergeResult, mask_keys: bool = False) -> str:
-    """Render a MergeResult as a formatted table."""
+    """Render a MergeResult as a formatted table.
+
+    Args:
+        result: The MergeResult to render.
+        mask_keys: If True, mask all values with '***'.
+
+    Returns:
+        A formatted string representation of the merge result.
+    """
     header = (
         f"{'KEY':<{_COL_KEY}}  {'VALUE':<{_COL_VAL}}  {'SOURCE':<{_COL_SRC}}"
     )
@@ -26,8 +41,7 @@ def render_merge_result(result: MergeResult, mask_keys: bool = False) -> str:
     for key in sorted(result.merged):
         raw_val = result.merged[key]
         display_val = "***" if mask_keys else raw_val
-        if len(display_val) > _COL_VAL:
-            display_val = display_val[: _COL_VAL - 3] + "..."
+        display_val = _truncate(display_val, _COL_VAL)
 
         is_conflict = key in result.conflicts
         srcs = ", ".join(result.conflicts[key]) if is_conflict else ""
