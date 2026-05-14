@@ -49,3 +49,20 @@ def render_baseline_deleted(baseline_id: str, found: bool) -> str:
 
 def render_baseline_not_found(baseline_id: str) -> str:
     return colorize(f"✘ Baseline '{baseline_id}' does not exist.", "red")
+
+
+def render_baseline_detail(result: BaselineResult) -> str:
+    """Render a detailed view of a single baseline, including all env keys."""
+    lines = [
+        colorize(f"Baseline: {result.baseline_id}", "cyan", bold=True),
+        f"  Target  : {result.target}",
+        f"  Keys    : {len(result.env)}",
+        f"  Created : {_fmt_time(result.created_at)}",
+    ]
+    if result.label:
+        lines.append(f"  Label   : {result.label}")
+    lines.append("")
+    lines.append(colorize("  Environment variables:", "white", bold=True))
+    for key in sorted(result.env):
+        lines.append(f"    {colorize(key, 'yellow')} = {result.env[key]}")
+    return "\n".join(lines)
