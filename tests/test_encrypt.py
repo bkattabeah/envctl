@@ -52,3 +52,14 @@ class TestEncryptDecrypt:
         t2 = encrypt_env(SAMPLE, PASS)
         # Different salts each call → different tokens
         assert t1 != t2
+
+    def test_roundtrip_preserves_special_characters(self):
+        """Ensure values containing special characters survive encrypt/decrypt."""
+        env = {
+            "URL": "https://example.com/path?foo=bar&baz=qux",
+            "MULTILINE": "line1\nline2\nline3",
+            "UNICODE": "caf\u00e9 \u4e2d\u6587",
+            "EQUALS": "key=value=extra",
+        }
+        token = encrypt_env(env, PASS)
+        assert decrypt_env(token, PASS) == env
